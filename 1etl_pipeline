@@ -1,0 +1,61 @@
+# -----------------------------------------------
+# ETL Pipeline: Extract, Transform, Load
+# Using Pandas and Scikit-learn
+# -----------------------------------------------
+
+# Step 0: Import necessary libraries
+import pandas as pd
+from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.compose import ColumnTransformer
+
+# Step 1: Load the dataset
+# 👉 Update the filename below with your actual CSV file name
+df = pd.read_csv("data.csv")  # Example: "student_scores.csv"
+
+# Optional: Check column names to verify target column
+print("Columns in dataset:", df.columns)
+
+# Step 2: Split the data into input features (X) and target variable (y)
+# ✅ Replace 'target_column' with actual name
+X = df.drop("target_column_name", axis=1)
+y = df["target_column_name"]
+
+# Step 3: Identify numerical and categorical columns
+numerical_cols = X.select_dtypes(include=["int64", "float64"]).columns
+categorical_cols = X.select_dtypes(include=["object"]).columns
+
+# Step 4: Define preprocessing pipeline for numerical data
+numerical_pipeline = Pipeline(steps=[
+    ("imputer", SimpleImputer(strategy="mean")),       # Fill missing with mean
+    ("scaler", StandardScaler())                       # Standardize values
+])
+
+# Step 5: Define preprocessing pipeline for categorical data
+categorical_pipeline = Pipeline(steps=[
+    ("imputer", SimpleImputer(strategy="most_frequent")),  # Fill missing with most common value
+    ("onehot", OneHotEncoder(handle_unknown="ignore"))     # Encode categories
+])
+
+# Step 6: Combine both pipelines using ColumnTransformer
+preprocessor = ColumnTransformer(transformers=[
+    ("num", numerical_pipeline, numerical_cols),
+    ("cat", categorical_pipeline, categorical_cols)
+])
+
+# Step 7: Apply the preprocessing pipeline
+X_transformed = preprocessor.fit_transform(X)
+
+# Step 8: Convert transformed data to DataFrame
+# If it's a sparse matrix, convert it to dense first
+X_final = pd.DataFrame(
+    X_transformed.toarray() if hasattr(X_transformed, "toarray") else X_transformed
+)
+
+# Step 9: Save the preprocessed data to CSV
+X_final.to_csv("processed_output.csv", index=False)
+
+# 🎉 Done
+print("✅ ETL process completed successfully.")
+print("📄 Processed data saved to 'processed_output.csv'")

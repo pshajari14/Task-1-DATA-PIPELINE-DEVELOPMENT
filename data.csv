@@ -1,0 +1,6 @@
+Name,Age,Gender,Salary,target_column_name
+Amit,25,Male,50000,Pass
+Riya,30,Female,55000,Pass
+Karan,,Male,48000,Fail
+Anjali,27,Female,,Pass
+Rahul,35,Male,62000,Fail
